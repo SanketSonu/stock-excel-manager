@@ -174,10 +174,11 @@ def _parse_date(value: object) -> date | None:
 
 def _get_last_date(ws) -> date | None:
     last = None
-    for col in range(1, ws.max_column + 1):
-        parsed = _parse_date(ws.cell(row=1, column=col).value)
-        if parsed:
-            last = parsed
+    for row in ws.iter_rows(min_row=1, max_row=1):
+        for cell in row:
+            parsed = _parse_date(cell.value)
+            if parsed:
+                last = parsed
     return last
 
 
