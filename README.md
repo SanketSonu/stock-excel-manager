@@ -7,8 +7,8 @@ Two flavours:
 
 | File | Purpose |
 | --- | --- |
-| `app_local.py` | Reads & writes a local `.xlsx` (path set via `STOCK_EXCEL_PATH`). |
-| `app_deploy.py` | Reads & writes an `.xlsx` stored in Google Drive (intended for Streamlit Cloud). |
+| `src/app_local.py` | Reads & writes a local `.xlsx` (path set via `STOCK_EXCEL_PATH`). |
+| `src/app_deploy.py` | Reads & writes an `.xlsx` stored in Google Drive (intended for Streamlit Cloud). |
 
 ## Highlights
 
@@ -28,7 +28,7 @@ pip install -r requirements.txt
 cp .env.example .env
 # edit .env: set KITE_API_KEY, KITE_API_SECRET, STOCK_EXCEL_PATH
 
-streamlit run app_local.py
+streamlit run src/app_local.py
 ```
 
 In your Kite Connect app on https://developers.kite.trade/apps, set the
@@ -37,7 +37,7 @@ In your Kite Connect app on https://developers.kite.trade/apps, set the
 ## Deploy on Streamlit Cloud
 
 1. Push this repo to GitHub.
-2. https://share.streamlit.io → **New app** → main file `app_deploy.py`.
+2. https://share.streamlit.io → **New app** → main file `src/app_deploy.py`.
 3. Paste the secrets template below into **Advanced settings → Secrets**.
 4. Click Deploy. Once you have the live URL, update the Kite Connect Redirect URL to that URL.
 
@@ -64,7 +64,7 @@ GDRIVE_FILE_ID  = "..."
 KITE_API_KEY    = "..."
 KITE_API_SECRET = "..."
 SHEET_NAME      = "Stock Report 2026"
-OVERRIDES_PATH  = "symbol_overrides.json"
+OVERRIDES_PATH  = "src/symbol_overrides.json"
 ```
 
 ### Drive setup

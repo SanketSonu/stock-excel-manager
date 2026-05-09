@@ -5,7 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parent
+SRC = Path(__file__).resolve().parent
+ROOT = SRC.parent
 
 
 def load_dotenv(path: Path = ROOT / ".env") -> None:
@@ -45,5 +46,5 @@ def load_settings() -> Settings:
         sheet_name=os.environ.get("STOCK_SHEET_NAME", "Stock Report 2026"),
         run_time=os.environ.get("STOCK_RUN_TIME", "16:00"),
         request_delay_seconds=float(os.environ.get("KITE_REQUEST_DELAY_SECONDS", "0.35")),
-        overrides_path=Path(os.environ.get("STOCK_SYMBOL_OVERRIDES", str(ROOT / "symbol_overrides.json"))),
+        overrides_path=Path(os.environ.get("STOCK_SYMBOL_OVERRIDES", str(SRC / "symbol_overrides.json"))),
     )

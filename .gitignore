@@ -24,3 +24,6 @@ env/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Claude Code project context (local only)
+CLAUDE.md

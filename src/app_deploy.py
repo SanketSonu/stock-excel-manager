@@ -394,7 +394,7 @@ def _get_config() -> dict:
         "kite_api_secret": app_cfg.get("KITE_API_SECRET", os.getenv("KITE_API_SECRET", "")),
         "sheet_name":      app_cfg.get("SHEET_NAME",       os.getenv("STOCK_SHEET_NAME", "Stock Report 2026")),
         "overrides_path":  app_cfg.get("OVERRIDES_PATH",  os.getenv("STOCK_SYMBOL_OVERRIDES",
-                                                                      str(Path(__file__).parent / "symbol_overrides.json"))),
+                                                                      str(Path(__file__).resolve().parent / "symbol_overrides.json"))),
     }
 
 
