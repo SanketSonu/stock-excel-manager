@@ -38,6 +38,8 @@ POSITIVE_FONT = Font(color="006100")
 NEGATIVE_FONT = Font(color="9C0006")
 NEUTRAL_FONT  = Font(color="9C6500")
 
+DATE_COL_MIN_WIDTH = 20.0
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers
@@ -85,6 +87,13 @@ def _weekdays_between(start: date, end: date) -> list[date]:
     return out
 
 
+def _ensure_min_width(ws, col_idx: int) -> None:
+    letter = get_column_letter(col_idx)
+    current = ws.column_dimensions[letter].width
+    if current is None or current < DATE_COL_MIN_WIDTH:
+        ws.column_dimensions[letter].width = DATE_COL_MIN_WIDTH
+
+
 def _find_or_make_date_col(ws, target: date) -> int:
     """Return column index for target date, creating header if needed."""
     last_used = 1
@@ -93,6 +102,7 @@ def _find_or_make_date_col(ws, target: date) -> int:
         if v not in (None, ""):
             last_used = col
         if _parse_date(v) == target:
+            _ensure_min_width(ws, col)
             return col
     new_col = last_used + 1
     hdr = ws.cell(row=1, column=new_col)
@@ -105,6 +115,7 @@ def _find_or_make_date_col(ws, target: date) -> int:
         hdr.protection = copy(prev.protection)
     hdr.value         = target
     hdr.number_format = "dd-mm-yy"
+    _ensure_min_width(ws, new_col)
     return new_col
 
 
