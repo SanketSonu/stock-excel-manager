@@ -1,0 +1,26 @@
+# Secrets / local config
+.env
+.envrc
+.streamlit/secrets.toml
+credentials.json
+*.json.bak
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Excel artefacts (working files / backups stay local)
+*.bak.xlsx
+*.~lock.*#
+~$*.xlsx
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
