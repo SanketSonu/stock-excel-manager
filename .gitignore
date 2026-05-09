@@ -4,6 +4,8 @@
 .streamlit/secrets.toml
 credentials.json
 *.json.bak
+# GCP service-account JSON keys at repo root (never commit)
+/*.json
 
 # Python
 __pycache__/
