@@ -18,6 +18,7 @@ env/
 *.bak.xlsx
 *.~lock.*#
 ~$*.xlsx
+src/output/
 
 # IDE / OS
 .idea/

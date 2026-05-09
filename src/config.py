@@ -37,7 +37,7 @@ def load_settings() -> Settings:
     api_key = os.environ.get("KITE_API_KEY", "").strip()
     if not api_key:
         raise RuntimeError("KITE_API_KEY is required in environment or .env")
-    workbook = Path(os.environ.get("STOCK_EXCEL_PATH", str(ROOT / "Stocks.xlsx"))).expanduser()
+    workbook = Path(os.environ.get("STOCK_EXCEL_PATH", str(SRC / "output" / "Stock Excel Manager.xlsx"))).expanduser()
     return Settings(
         kite_api_key=api_key,
         kite_api_secret=os.environ.get("KITE_API_SECRET") or None,
