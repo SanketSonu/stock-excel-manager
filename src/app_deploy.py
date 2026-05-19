@@ -44,9 +44,11 @@ from openpyxl.utils.datetime import from_excel
 from openpyxl.worksheet.views import Selection
 
 DATE_COL_MIN_WIDTH = 20.0
-SHEET_ZOOM = 150            # open the sheet at 150% instead of 100%
 VISIBLE_CONTEXT_COLS = 4    # how many older date columns to keep on screen
                             # alongside the latest one when the file opens
+TRAILING_PAD_COLS = 15      # empty columns added after the latest date so
+                            # web viewers can scroll the latest date away
+                            # from the far-right edge, nearer the Company col
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Style constants
@@ -238,12 +240,34 @@ def _last_used_col(ws) -> int:
     return last
 
 
+def _pad_trailing_cols(ws, last_col: int, n: int = TRAILING_PAD_COLS) -> None:
+    """Add N empty (styled, value-less) columns after the latest date column.
+
+    Google Drive's preview and Excel clip the scroll range to the used cells,
+    so the latest date sits jammed against the right edge.  These padding
+    columns extend the scrollable range, letting the viewer scroll the latest
+    date leftward — right next to the frozen Company column.  They carry no
+    value, so _last_used_col / _find_or_make_date_col ignore them and the next
+    run reuses the first one for the new date (count stays ~N, not growing).
+    """
+    if last_col < 1:
+        return
+    src = ws.cell(row=1, column=last_col)        # latest date header = style src
+    for i in range(1, n + 1):
+        cell = ws.cell(row=1, column=last_col + i)
+        if src.has_style:
+            cell.font       = copy(src.font)
+            cell.fill       = copy(src.fill)
+            cell.border     = copy(src.border)
+            cell.alignment  = copy(src.alignment)
+            cell.protection = copy(src.protection)
+        _ensure_min_width(ws, last_col + i)
+
+
 def _configure_view(ws, last_col: int) -> None:
-    """Freeze the label column + header row, zoom in, and scroll the view so
-    the most recent dates are visible the moment the workbook is opened."""
+    """Freeze the label column + header row and scroll the view so the most
+    recent dates are visible the moment the workbook is opened."""
     ws.freeze_panes = "B2"                       # pin column A + row 1
-    ws.sheet_view.zoomScale       = SHEET_ZOOM
-    ws.sheet_view.zoomScaleNormal = SHEET_ZOOM
 
     if last_col > 1 and ws.sheet_view.pane is not None:
         first_visible = max(2, last_col - VISIBLE_CONTEXT_COLS)
@@ -413,7 +437,9 @@ def fill_missing_dates(
     for d in dates_to_fill:
         summary[d]["skipped"] = len(stock_rows) - summary[d]["updated"]
 
-    _configure_view(ws, _last_used_col(ws))
+    last_col = _last_used_col(ws)
+    _pad_trailing_cols(ws, last_col)
+    _configure_view(ws, last_col)
 
     summary["stocks_failed"] = stocks_failed
     if progress_cb:
