@@ -41,8 +41,12 @@ from openpyxl import load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.datetime import from_excel
+from openpyxl.worksheet.views import Selection
 
 DATE_COL_MIN_WIDTH = 20.0
+SHEET_ZOOM = 150            # open the sheet at 150% instead of 100%
+VISIBLE_CONTEXT_COLS = 4    # how many older date columns to keep on screen
+                            # alongside the latest one when the file opens
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Style constants
@@ -225,6 +229,31 @@ def _find_or_make_date_col(ws, target: date) -> int:
     return new_col
 
 
+def _last_used_col(ws) -> int:
+    """Index of the rightmost column that has a header in row 1."""
+    last = 1
+    for col in range(1, ws.max_column + 1):
+        if ws.cell(row=1, column=col).value not in (None, ""):
+            last = col
+    return last
+
+
+def _configure_view(ws, last_col: int) -> None:
+    """Freeze the label column + header row, zoom in, and scroll the view so
+    the most recent dates are visible the moment the workbook is opened."""
+    ws.freeze_panes = "B2"                       # pin column A + row 1
+    ws.sheet_view.zoomScale       = SHEET_ZOOM
+    ws.sheet_view.zoomScaleNormal = SHEET_ZOOM
+
+    if last_col > 1 and ws.sheet_view.pane is not None:
+        first_visible = max(2, last_col - VISIBLE_CONTEXT_COLS)
+        last_cell = f"{get_column_letter(last_col)}2"
+        ws.sheet_view.pane.topLeftCell = f"{get_column_letter(first_visible)}2"
+        ws.sheet_view.selection = [
+            Selection(pane="bottomRight", activeCell=last_cell, sqref=last_cell)
+        ]
+
+
 def _write_price(ws, row: int, col: int, close: DailyClose) -> None:
     pct  = close.change_pct
     sign = "+" if pct >= 0 else ""
@@ -383,6 +412,8 @@ def fill_missing_dates(
 
     for d in dates_to_fill:
         summary[d]["skipped"] = len(stock_rows) - summary[d]["updated"]
+
+    _configure_view(ws, _last_used_col(ws))
 
     summary["stocks_failed"] = stocks_failed
     if progress_cb:
